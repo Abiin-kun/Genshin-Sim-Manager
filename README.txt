@@ -1,65 +1,60 @@
-=== Genshin Sim Manager ===
-Created by @enigwa on Discord
+### Genshin Sim Manager
 
-A simple graphical wrapper around the **gcsim** command‑line tool. It lets you organise multiple projects, edit config files with syntax highlighting, and launch simulations or sub‑stat optimisations without typing any commands. All the heavy lifting is still done by the original gcsim binary – the app just provides a convenient UI for managing inputs, selecting the executable, and viewing results in your browser.
+A lightweight, local browser-based graphical wrapper designed around the gcsim command‑line tool. It allows you to organize multiple projects, edit configuration files with built-in syntax highlighting, and launch simulations or substat optimizations without touching the terminal. It works intuitively not just with the main repository but also with forks like WFPSim.
 
---------------------------------------------------
-HOW TO START
---------------------------------------------------
+⚠️ Note: All simulation calculations are still executed by your original gcsim binary — this manager simply provides a convenient UI to manage inputs, select executables, and view results.
 
-Double-click "Genshin Sim Manager.bat" in the program folder.
-This will install or verify dependencies (runs npm install) and start the GUI.
-Once running, open your browser and go to:
+🚀 How to Start
 
-    http://localhost:3000
+Download the Repository:
 
-Keep the terminal window open while using the program.
-Close the terminal to stop the server.
+Click the green Code button at the top right of this GitHub page and select Download ZIP, then extract it to a folder on your computer.
 
---------------------------------------------------
-HOW TO USE
---------------------------------------------------
+Alternatively, if you use Git, clone the repo by running: git clone [https://github.com/EnigWa/Genshin-Sim-Manager.git](https://github.com/EnigWa/Genshin-Sim-Manager.git)
 
-1. ADD YOUR SIM EXECUTABLE
-   - Click "+" to type the path to your gcsim .exe, or
-   - Click "Browse" to navigate your files and select it.
-   - You can add multiple sim executables and switch between them.
+Launch the Application: Double-click Genshin Sim Manager.bat inside the extracted program folder.
 
-2. CREATE A PROJECT
-   - Click "Create" and give your project a name.
-   - Projects keep your configs and output files organised.
-   - Switch between projects using the dropdown.
-   - Click "Delete" to remove a project and all its files.
+This script will automatically verify dependencies, run npm install if necessary, and boot up the local server.
 
-3. ADD CONFIG FILES
-   - Click "+ New" in the sidebar to create a new config.
-   - The built-in editor supports syntax highlighting.
-   - Use format, rename, copy, import, and export to manage them.
-   - Autosave is on by default (can be toggled).
+<img width="1919" height="960" alt="image" src="https://github.com/user-attachments/assets/9b4ac146-e2c6-4399-ae3d-df7a785af800" />
 
-4. RUN OR OPTIMIZE
-   - Select a config in the sidebar.
-   - Click "Run" for a normal simulation, or
-   - Click "Optimize" for substat optimisation.
-   - Click "Run All" to run every config in the project.
-   - Results open in your browser.
-   - Use "Stop" to cancel at any time.
+---
 
---------------------------------------------------
-SETTINGS
---------------------------------------------------
+### ⚙️ Executable Management
+* **Add a Binary:** Click the `+` button to manually paste the file path to your `gcsim` executable, or click **Browse** to find it via your native file explorer.
+* **Hot-Swapping:** You can add multiple versions of the simulation executable and switch between them seamlessly on the fly.
 
-Click the gear icon ⚙ to open Settings:
-   - Background theme: choose between Default Dark, Pitch Black,
-     Red, Blue, or Silver.
-   - Text colour theme: pick text colours independently of the
-     background (Light, Light Blue, Crimson, Dark).
-   - Editor font size: adjust with the slider (10–24px).
+### 📂 Project Organization
+* **Create:** Click **Create** and name your project to keep your configurations and output files separate and organized.
+* **Manage:** Switch between active workspaces using the project dropdown, or use **Delete** to wipe a project and all its associated files.
 
---------------------------------------------------
-NOTES
---------------------------------------------------
+### 📝 Code Editor
+* **Creation:** Click `+ New` in the sidebar to generate a blank configuration.
+* **Features:** Includes a built-in code editor with syntax highlighting, Simpact-eligible code formatting, renaming, duplicating, and file import/export tools.
+* **Autosave:** Enabled by default to protect your progress (can be toggled off in settings).
 
-- Config files are stored in the projects/ folder.
-- Output files are saved alongside your configs.
-- All settings are saved automatically.
+### 📊 Running Simulations
+* **Run:** Select a configuration from the sidebar and click **Run** for a standard simulation.
+* **Optimize:** Click **Optimize** to trigger the substat optimization routine.
+* **Batch Execution:** Click **Run All** to queue and execute every configuration file within the active project sequentially.
+* **Control:** View your final results directly in your default browser. Click **Stop** at any point to kill an active simulation.
+
+---
+
+## 🎨 Personalization & Settings
+<img width="1919" height="971" alt="image" src="https://github.com/user-attachments/assets/c36e9fb2-eeb9-4bba-b867-a55f5eda5526" />
+
+Click the **Gear Icon (⚙)** to customize your workspace environment:
+
+| Setting | Options Available |
+| :--- | :--- |
+| **Background Theme** | Default Dark, Pitch Black, Red, Blue, Silver |
+| **Text Color Theme** | Light, Light Blue, Crimson, Dark *(Independent of background)* |
+| **Editor Typography** | Adjustable font size via slider (10px – 24px) |
+
+---
+
+## 💾 Notes
+
+* **Storage Paths:** All user configuration files are stored safely within the local `/projects` folder.
+* **State Persistence:** Application settings, paths, and themes are automatically saved locally upon modification.
