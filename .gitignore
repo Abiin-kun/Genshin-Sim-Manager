@@ -9,6 +9,9 @@ serve_sample.json.gz
 # Project data
 projects/
 clients/
+## gcsim bins
+bin/
+
 
 # Linter rules
 .clinerules</arg_value>

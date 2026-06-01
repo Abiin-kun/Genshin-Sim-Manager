@@ -385,3 +385,9 @@ body {
 
 /* Browse modal uses the standard modal width */
 #browseModal .modal { width: 700px; height: 500px; max-height: 90vh; }
+.results-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.results-table th { background: var(--bg-secondary); padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-weight: normal; }
+.results-table td { padding: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
+.results-table tr:hover { background: var(--bg-hover); }
+.action-btn { background: var(--bg-btn-primary); color: var(--text-bright); border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 4px; }
+.action-btn:hover { background: var(--bg-btn-primary-hover); }
