@@ -53,6 +53,23 @@ Click the **Gear Icon (⚙)** to customize your workspace environment:
 | **Editor Typography** | Adjustable font size via slider (10px – 24px) |
 
 ---
+NEW:
+
+- Split Viewer
+- Faster autosave
+- Bug fixes
+
+PLANNED:
+
+- KQMs checker
+- Enka UID fetcher
+- Automatic error checker (like in the gcsim web editor)
+- Optimize all function
+- Character build graphics
+- .GOOD file support for builds
+- Config rearranger
+- Split view partition adjuster (so we can make one side bigger than the other)
+Copy the selected config and make the first character get a constellation  until c6
 
 ## 💾 Notes
 
