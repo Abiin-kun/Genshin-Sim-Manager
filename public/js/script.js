@@ -14,7 +14,8 @@ var state = {
     editorTimeout: null,
     currentBgTheme: localStorage.getItem('gcsim_bg') || 'default',
     currentTextTheme: localStorage.getItem('gcsim_text') || 'light-text',
-    editorFontSize: parseInt(localStorage.getItem('gcsim_fontsize')) || 13
+    editorFontSize: parseInt(localStorage.getItem('gcsim_fontsize')) || 13,
+    autoOpenViewer: localStorage.getItem('gcsim_auto_open_viewer') === 'true'
 };
 
 var SECTION_NAMES = new Set([
@@ -210,7 +211,10 @@ function formatConfig() {
         if (i > 0 && sectionHeaders.test(line) && arr[i-1].trim() !== '') return '\n' + line;
         return line;
     }).join('\n');
-    result = result.replace(/(\w[\w.%]*):\s*(\d+(?:\.\d+)?)/g, '$1:$2');
+    // Fix spacing inside stats/value lines: remove spaces around = in key=value pairs
+    result = result.replace(/(\w[\w.%]*)\s*=\s*([^\s;]+)/g, '$1=$2');
+    // Also handle colon-based assignments if any exist
+    result = result.replace(/(\w[\w.%]*)\s*:\s*(\d+(?:\.\d+)?)/g, '$1:$2');
     var indentLevel = 0;
     var lines = result.split('\n');
     var formatted = [];
@@ -219,12 +223,14 @@ function formatConfig() {
         if (trimmed.startsWith('#') || trimmed.startsWith('//')) { formatted.push(lines[i].replace(/^\s*/, '')); continue; }
         if (trimmed === '') { formatted.push(''); continue; }
         if (trimmed.startsWith('}')) indentLevel = Math.max(0, indentLevel - 1);
+        // Do NOT indent stat/value continuation lines - they belong to the current character block
         formatted.push('  '.repeat(indentLevel) + trimmed);
         if (trimmed.endsWith('{') || ((trimmed.match(/\{/g) || []).length > (trimmed.match(/\}/g) || []).length && !trimmed.startsWith('}'))) indentLevel++;
     }
     result = formatted.join('\n');
     result = result.replace(/\n+$/, '\n');
-    editor.value = result;
+    // Instead of overwriting directly, use Ace's session to replace preserving undo history
+    window.aceEditor.session.setValue(result);
     state.dirty = true;
     toast('Config formatted', 'info');
 }
@@ -745,16 +751,13 @@ async function loadConfig(name) {
     try {
         var data = await api('GET', '/api/projects/' + encodeURIComponent(state.currentProject) + '/configs/' + encodeURIComponent(name));
         state.currentFile = { name: data.name, content: data.content };
-        window.aceEditor.setValue(data.content, -1); // -1 moves cursor to the start
+        window.aceEditor.setValue(data.content, -1);
 
         document.getElementById('fileIndicator').textContent = 'File: ' + data.name;
         document.getElementById('saveStatus').textContent = '';
         state.dirty = false;
-        document.querySelectorAll('.file-item').forEach(function(el) {
-            el.classList.remove('active');
-            var fn = el.querySelector('.filename');
-            if (fn && fn.textContent === name.replace('.txt', '')) el.classList.add('active');
-        });
+        // Re-render the file list to apply the active class consistently
+        renderFileList();
     } catch (e) { toast('Error loading config: ' + e.message, 'error'); }
 }
 
@@ -1049,7 +1052,19 @@ function startPolling() {
                 clearInterval(state.pollInterval); 
                 state.pollInterval = null; 
                 setSimButtonsLoading(false); 
-                if (data.status === 'completed') toast('All ' + (data.mode === 'optimize' ? 'optimizations' : 'simulations') + ' completed', 'success'); 
+                if (data.status === 'completed') {
+                    toast('All ' + (data.mode === 'optimize' ? 'optimizations' : 'simulations') + ' completed', 'success');
+                    if (state.autoOpenViewer) {
+                        // Find the latest result file and auto-open the viewer
+                        setTimeout(function() {
+                            api('GET', '/api/projects/' + encodeURIComponent(state.currentProject) + '/results').then(function(results) {
+                                if (results.length > 0) {
+                                    openGcsimViewer(results[0].filename);
+                                }
+                            }).catch(function() {});
+                        }, 500);
+                    }
+                }
                 state.runId = null; 
             }
         } catch (e) { console.error('Poll error:', e); }
@@ -1098,23 +1113,30 @@ function findSplitLine(text) {
 function toggleSplitView() {
     var wrapper = document.getElementById('editorWrapper');
     var pane2 = document.getElementById('pane2');
+    var resizer = document.getElementById('resizer');
     var editor2 = document.getElementById('editor2');
     
     if (splitViewActive) {
         // Merge back
-        var text1 = document.getElementById('editor').value;
-        var text2 = editor2.value;
-        document.getElementById('editor').value = text2 + text1;
+        var text1 = window.aceEditor.getValue();
+        var text2 = window.aceEditor2.getValue();
+        window.aceEditor.setValue(text2 + text1, -1);
         pane2.style.display = 'none';
+        resizer.style.display = 'none';
         wrapper.classList.remove('split');
         splitViewActive = false;
 
         state.dirty = true;
+        
+        // Refresh Ace editor layout
+        if (window.aceEditor) window.aceEditor.resize();
+        if (window.aceEditor2) window.aceEditor2.resize();
+        
         toast('Split view closed', 'info');
         return;
     }
     
-    var text = document.getElementById('editor').value;
+    var text = window.aceEditor.getValue();
     var splitInfo = findSplitLine(text);
     if (splitInfo < 0) {
         toast('No active(...); line found to split at', 'error');
@@ -1131,26 +1153,39 @@ function toggleSplitView() {
     var part1 = text.substring(0, splitIndex);
     var part2 = text.substring(splitIndex);
     
-    document.getElementById('editor').value = part2;
-    editor2.value = part1;
+    window.aceEditor.setValue(part2, -1);
+    window.aceEditor2.setValue(part1, -1);
     
     pane2.style.display = 'block';
+    resizer.style.display = 'block';
     wrapper.classList.add('split');
     splitViewActive = true;
     
-
     state.dirty = true;
+    
+    // Refresh Ace editor layout after DOM change
+    if (window.aceEditor) window.aceEditor.resize();
+    if (window.aceEditor2) window.aceEditor2.resize();
+    
     toast('Split view opened', 'info');
 }
+function onAutoOpenChange() {
+    state.autoOpenViewer = document.getElementById('autoOpenViewer').checked;
+    localStorage.setItem('gcsim_auto_open_viewer', state.autoOpenViewer);
+    toast(state.autoOpenViewer ? 'Auto-open viewer enabled' : 'Auto-open viewer disabled', 'info');
+}
+
 async function showResultsModal() {
     if (!state.currentProject) { toast('Select a project first', 'error'); return; }
     document.getElementById('resultsModal').classList.add('show');
+    document.getElementById('autoOpenViewer').checked = state.autoOpenViewer;
     const tbody = document.getElementById('resultsTableBody');
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 15px;">Loading...</td></tr>';
     
     try {
         const results = await api('GET', '/api/projects/' + encodeURIComponent(state.currentProject) + '/results');
         tbody.innerHTML = '';
+        document.getElementById('resultCount').textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
         if (results.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 15px; color: var(--text-muted);">No results found. Run a simulation first.</td></tr>';
             return;
@@ -1162,7 +1197,7 @@ async function showResultsModal() {
                 <td><span style="padding: 2px 6px; border-radius: 3px; background: ${r.mode === 'Optimize' ? 'var(--bg-btn-opt)' : 'var(--bg-active)'}; font-size: 10px;">${r.mode}</span></td>
                 <td style="font-family: monospace; font-size: 14px; font-weight: bold; color: var(--toast-success-border);">${Math.round(r.dps).toLocaleString()}</td>
                 <td style="text-align:right;">
-                    <button class="action-btn" onclick="openGcsimViewer('${escapeHtml(r.filename)}')">View Web Data</button>
+                    <button class="action-btn" onclick="openGcsimViewer('${escapeHtml(r.filename)}')">Open Viewer</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1173,11 +1208,23 @@ async function showResultsModal() {
 }
 
 async function openGcsimViewer(filename) {
-    toast('Opening in gcsim.app...', 'info');
+    toast('Opening in gcsim.app viewer...', 'info');
     try {
         await api('POST', '/api/view/' + encodeURIComponent(state.currentProject) + '/' + encodeURIComponent(filename));
     } catch(e) {
         toast('Failed to open viewer', 'error');
+    }
+}
+
+async function clearResults() {
+    if (!state.currentProject) return;
+    if (!confirm('Are you sure you want to delete ALL result files for this project?')) return;
+    try {
+        const data = await api('POST', '/api/projects/' + encodeURIComponent(state.currentProject) + '/results/clear');
+        toast('Cleared ' + data.deleted + ' result file(s)', 'info');
+        showResultsModal(); // Refresh the results table
+    } catch(e) {
+        toast('Failed to clear results: ' + e.message, 'error');
     }
 }
 

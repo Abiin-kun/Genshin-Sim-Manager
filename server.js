@@ -813,6 +813,23 @@ app.get('/api/projects/:project/results', (req, res) => {
     res.json(results);
 });
 
+app.post('/api/projects/:project/results/clear', (req, res) => {
+    const outputsDir = path.join(PROJECTS_DIR, req.params.project, 'outputs');
+    try {
+        if (fs.existsSync(outputsDir)) {
+            const files = fs.readdirSync(outputsDir).filter(f => f.endsWith('.json'));
+            for (const f of files) {
+                fs.unlinkSync(path.join(outputsDir, f));
+            }
+            res.json({ success: true, deleted: files.length });
+        } else {
+            res.json({ success: true, deleted: 0 });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.post('/api/view/:project/:filename', (req, res) => {
     const filePath = path.join(PROJECTS_DIR, req.params.project, 'outputs', req.params.filename);
     if (fs.existsSync(filePath)) {

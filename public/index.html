@@ -71,6 +71,10 @@
 <div class="toolbar-divider"></div>
 <button class="btn-secondary" onclick="validateSelected()" style="margin-right: 8px;">&#10004; Validate</button>
 <button style="background: var(--bg-active);" onclick="showResultsModal()">&#128202; Results</button>
+<label class="toolbar-toggle" style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;white-space:nowrap;">
+    <input type="checkbox" id="autoOpenViewer" onchange="onAutoOpenChange()" style="cursor:pointer;">
+    Auto-open viewer
+</label>
                 <div class="toolbar-divider"></div>
                 <button class="btn-settings" onclick="showSettingsModal()" title="Settings">&#9881;</button>
                 <div class="toolbar-divider"></div>
@@ -345,6 +349,13 @@
                 </thead>
                 <tbody id="resultsTableBody"></tbody>
             </table>
+        </div>
+        <div class="modal-footer" style="justify-content:space-between;">
+            <span style="font-size:11px;color:var(--text-muted);" id="resultCount"></span>
+            <div>
+                <button class="btn-danger" onclick="clearResults()">🗑 Clear All Results</button>
+                <button class="btn-secondary" onclick="closeModal('resultsModal')">Close</button>
+            </div>
         </div>
     </div>
 </div>

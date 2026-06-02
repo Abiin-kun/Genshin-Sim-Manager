@@ -1,5 +1,4 @@
-
-        /* ========== CSS VARIABLES / THEMING ========== */
+/* ========== CSS VARIABLES / THEMING ========== */
         :root {
             /* Default Dark background theme */
             --bg-primary: #1e1e1e;
@@ -344,6 +343,11 @@
         .editor-pane .editor-textarea::-webkit-scrollbar { display: none; }
         .editor-wrapper.split .editor-pane:first-child .editor-textarea { overflow-y: auto; }
         .editor-wrapper.split .editor-pane:last-child .editor-textarea { overflow-y: auto; }
+
+        /* ===== HIDE ALL SCROLLBARS (visual only, scroll functionality preserved) ===== */
+        /* Ace editor internal scrollbars - hide visually without affecting layout */
+        ::-webkit-scrollbar { width: 0; height: 0; }
+
         .resizer {
             width: 4px; background: var(--border-color); cursor: col-resize; position: relative;
             transition: background 0.2s; flex-shrink: 0;
