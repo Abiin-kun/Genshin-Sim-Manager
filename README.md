@@ -101,7 +101,7 @@ Click the **Gear Icon (⚙)** to customize your workspace environment:
 * **Character build graphics:** Generate visual infographics of your simulated character builds.
 * **.GOOD file support for builds:** Import character and artifact data directly from popular Genshin scanners (Genshin Optimizer, etc.).
 * **Split view partition adjuster:** Dynamically adjust the partition so we can make one side bigger than the other.
-* **One-Click Modification:** Quick actions to copy the selected config and set the first character to C6 (instantly testing a character at Constellation 6).
+* **One-Click Modification:** Quick actions to copy the selected config and set the first character to every every constellation from c1 to c6.
 
 ## 💾 Notes & Troubleshooting
 
