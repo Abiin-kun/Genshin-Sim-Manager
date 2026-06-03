@@ -663,7 +663,6 @@ function renderFileList() {
 
         div.innerHTML =
             checkboxHtml +
-            '<span class="icon">📄</span>' +
             '<span class="filename">' + f.name.replace('.txt', '') + '</span>' +
             getDpsDisplay(f.name) +
             renderTagChips(f.name) +
